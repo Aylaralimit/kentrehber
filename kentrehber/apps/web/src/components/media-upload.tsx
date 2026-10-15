@@ -21,8 +21,8 @@ export function MediaUpload({ name, label, initialUrl }: Props) {
     event.target.value = '';
 
     setNotice('');
-    if (file.size > 9 * 1024 * 1024) {
-      setNotice('Dosya 9 MB sınırını aşıyor.');
+    if (file.size > 4 * 1024 * 1024) {
+      setNotice('Dosya 4 MB sınırını aşıyor.');
       return;
     }
     setBusy(true);
@@ -63,7 +63,7 @@ export function MediaUpload({ name, label, initialUrl }: Props) {
             aria-label={label + ' için görsel seç'}
           />
         </label>
-        <span className="text-xs text-muted-foreground">JPG, PNG, WebP • En fazla 9 MB</span>
+        <span className="text-xs text-muted-foreground">JPG, PNG, WebP • En fazla 4 MB</span>
       </div>
 
       <label className="block text-xs font-medium text-muted-foreground" htmlFor={name}>

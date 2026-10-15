@@ -7,6 +7,7 @@ describe('migration distribution', () => {
     ['0003_config_integrity', '20261015000300_config_integrity'],
     ['20261015000400_vertical_theme', '20261015000400_vertical_theme'],
     ['20261015000500_seed_themes', '20261015000500_seed_themes'],
+    ['20261015000600_site_content', '20261015000600_site_content'],
   ])('keeps %s identical to the Prisma migration', (source, target) => {
     expect(readFileSync(`db/migrations/${source}.sql`, 'utf8')).toBe(
       readFileSync(`packages/db/prisma/migrations/${target}/migration.sql`, 'utf8'),

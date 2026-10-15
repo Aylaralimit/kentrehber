@@ -9,8 +9,8 @@ import { Footer } from '@/components/layout/footer';
 import './globals.css';
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
-  title: { default: 'KentRehber — Şehrinle tanış', template: '%s | KentRehber' },
-  description: 'Şehir şehir, semt semt. Yerel yaşamın rehberi.',
+  title: { default: 'KentRehber — Dijital katalog', template: '%s | KentRehber' },
+  description: 'Seçili işletmeler ve koleksiyonlar için görsel katalog.',
   robots: { index: false, follow: false },
 };
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

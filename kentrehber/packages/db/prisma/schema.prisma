@@ -119,3 +119,12 @@ model Verification {
   @@index([expiresAt])
   @@map("verification")
 }
+
+model SiteContent {
+  verticalSlug String   @id @map("vertical_slug")
+  content      Json     @default("{}") @db.JsonB
+  published    Boolean  @default(false)
+  updatedBy    String?  @map("updated_by")
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  @@map("site_contents")
+}

@@ -11,6 +11,18 @@ const base = {
 describe('environment validation', () => {
   it('explicitly disables unconfigured cloud media', () =>
     expect(parseEnv(base).MEDIA_ENABLED).toBe(false));
+  it('disables Cloudflare-only uploads unless explicitly configured', () => {
+    expect(parseEnv(base).CF_IMAGES_UPLOAD_ENABLED).toBe(false);
+    expect(() => parseEnv({ ...base, CF_IMAGES_UPLOAD_ENABLED: 'true' }))
+      .toThrow('CF_IMAGES_ACCOUNT_ID');
+    expect(parseEnv({
+      ...base,
+      CF_IMAGES_UPLOAD_ENABLED: 'true',
+      CF_IMAGES_ACCOUNT_ID: 'a'.repeat(32),
+      CF_IMAGES_API_TOKEN: 't'.repeat(24),
+      CF_IMAGES_ACCOUNT_HASH: 'abc123',
+    }).CF_IMAGES_UPLOAD_ENABLED).toBe(true);
+  });
   it('requires production HTTPS', () =>
     expect(() => parseEnv({ ...base, NODE_ENV: 'production' })).toThrow('HTTPS'));
   it('rejects origin paths', () =>

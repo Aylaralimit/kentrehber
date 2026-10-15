@@ -4,6 +4,7 @@ import { ArrowUpRight, ImagePlus, LayoutGrid, Save, ShieldCheck } from 'lucide-r
 import { currentSession } from '@/lib/session';
 import { getEditableCatalog } from '@/lib/catalog';
 import { saveCatalogContent } from './actions';
+import { MediaUpload } from '@/components/media-upload';
 
 export const metadata = { title: 'Katalog yönetimi', robots: { index: false, follow: false } };
 
@@ -53,6 +54,12 @@ export default async function Panel({
         </p>
       ) : null}
 
+      <nav aria-label="Yönetim bölümleri" className="mb-8 flex flex-wrap gap-3">
+        <Link href="/admin/categories" className="inline-flex min-h-11 items-center rounded-lg border border-accent/45 bg-accent/10 px-5 text-sm font-semibold text-accent hover:bg-accent/20">
+          İşletme kategorilerini yönet
+        </Link>
+      </nav>
+
       <div className="mb-8 grid gap-4 sm:grid-cols-3">
         <div className="rounded-xl border border-border bg-surface p-6">
           <p className="text-xs uppercase tracking-widest text-muted-foreground">Yayın durumu</p>
@@ -90,11 +97,10 @@ export default async function Panel({
                 Açıklama
                 <textarea className={textareaClass} name="description" rows={3} maxLength={400} defaultValue={editor.content.description} />
               </label>
-              <label className={labelClass}>
-                <span className="inline-flex items-center gap-2"><ImagePlus aria-hidden className="h-4 w-4" /> Kapak görseli (HTTPS URL)</span>
-                <input className={inputClass} type="url" name="heroImageUrl" maxLength={2048} placeholder="https://..." defaultValue={editor.content.heroImageUrl} />
-                <span className="mt-2 block text-xs font-normal text-muted-foreground">Bu sürümde URL ile görsel eklenir. Doğrudan dosya yükleme için medya depolama bağlantısı gereklidir.</span>
-              </label>
+              <div className={labelClass}>
+                <span className="inline-flex items-center gap-2"><ImagePlus aria-hidden className="h-4 w-4" /> Kapak görseli</span>
+                <MediaUpload name="heroImageUrl" label="Kapak görseli" initialUrl={editor.content.heroImageUrl} />
+              </div>
             </div>
           </section>
 
@@ -143,10 +149,10 @@ export default async function Panel({
                         Kısa açıklama
                         <textarea className={textareaClass} name={`cards.${index}.description`} rows={2} maxLength={240} defaultValue={card?.description ?? ''} />
                       </label>
-                      <label className={`${labelClass} md:col-span-2`}>
-                        Görsel bağlantısı (HTTPS)
-                        <input className={inputClass} type="url" name={`cards.${index}.imageUrl`} maxLength={2048} placeholder="https://..." defaultValue={card?.imageUrl ?? ''} />
-                      </label>
+                      <div className={`${labelClass} md:col-span-2`}>
+                        <span>Görsel</span>
+                        <MediaUpload name={`cards.${index}.imageUrl`} label={`Kart ${index + 1} görseli`} initialUrl={card?.imageUrl ?? ''} />
+                      </div>
                     </div>
                   </fieldset>
                 );

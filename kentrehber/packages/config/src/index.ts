@@ -30,6 +30,10 @@ const schema = z
       .enum(['true', 'false'])
       .default('false')
       .transform((v) => v === 'true'),
+    CF_IMAGES_UPLOAD_ENABLED: z
+      .enum(['true', 'false'])
+      .default('false')
+      .transform((v) => v === 'true'),
     R2_ACCOUNT_ID: blankOptional(z.string().regex(/^[a-f0-9]{32}$/)),
     R2_ACCESS_KEY_ID: blankOptional(z.string().min(16)),
     R2_SECRET_ACCESS_KEY: blankOptional(z.string().min(32)),
@@ -48,6 +52,15 @@ const schema = z
       });
     if (env.NODE_ENV === 'production' && url.protocol !== 'https:')
       ctx.addIssue({ code: 'custom', path: ['APP_URL'], message: 'HTTPS required in production' });
+    if (env.CF_IMAGES_UPLOAD_ENABLED)
+      for (const key of [
+        'CF_IMAGES_ACCOUNT_ID',
+        'CF_IMAGES_API_TOKEN',
+        'CF_IMAGES_ACCOUNT_HASH',
+      ] as const) {
+        if (!env[key])
+          ctx.addIssue({ code: 'custom', path: [key], message: 'Required for Cloudflare Images uploads' });
+      }
     if (env.MEDIA_ENABLED)
       for (const key of [
         'R2_ACCOUNT_ID',

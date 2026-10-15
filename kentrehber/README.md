@@ -92,3 +92,13 @@ Official references: [Better Auth Prisma adapter](https://better-auth.com/docs/a
 
 Phase 1.5 adds shared theme primitives and visual page shells. See [THEMING.md](THEMING.md) for configuration, migrations, file locations and verification limits.
 
+
+## Phase 2.1 — Business categories and image editing
+
+The authenticated `/admin` dashboard manages the catalog headline, hero image and up to six feature cards. `/admin/categories` creates and removes ordinary business categories; saved categories are displayed on the storefront.
+
+The image editor uploads JPG, PNG or WebP through `POST /api/admin/media` when Cloudflare Images is configured. To enable uploads, set `CF_IMAGES_UPLOAD_ENABLED=true` and add `CF_IMAGES_ACCOUNT_ID`, `CF_IMAGES_API_TOKEN` (Images Write permission), and `CF_IMAGES_ACCOUNT_HASH` securely on the application server. The existing `MEDIA_ENABLED` switch remains independent and may stay `false`.
+
+Uploads are limited to 4 MiB due to Vercel Functions' 4.5 MB request-body limit. A successful upload fills the image URL field; the operator must then save the catalog. Unpublished changes remain private. The new editor is limited to ordinary business verticals.
+
+Dynamic rendering means published changes appear on the **next page request**, not as an automatic update of already-open browser tabs. No cloud media upload or live database migration is claimed to have run. Before production, configure PostgreSQL, Redis and other service secrets, run `pnpm db:migrate`, and verify access controls and uploads.

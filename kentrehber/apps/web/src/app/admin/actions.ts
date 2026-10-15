@@ -37,6 +37,13 @@ export async function saveCatalogContent(data: FormData) {
   }
 
   const verticalSlug = getEnv().DEPLOY_VERTICAL;
+  const vertical = await getDb().vertical.findUnique({
+    where: { slug: verticalSlug },
+    select: { isAdult: true },
+  });
+  if (!vertical || vertical.isAdult) {
+    throw new Error('Bu katalog için içerik yayını kullanılamıyor.');
+  }
   const published = data.get('published') === 'on';
   await getDb().siteContent.upsert({
     where: { verticalSlug },

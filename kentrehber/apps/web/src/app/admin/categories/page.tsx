@@ -36,7 +36,7 @@ export default async function Categories({
     (params.status && successes[params.status]) || '';
 
   return (
-    <main className="mx-auto max-w-6xl px-5 py-12 sm:px-8">
+    <div className="mx-auto max-w-6xl px-5 py-12 sm:px-8">
       <Link href="/admin" className="mb-8 inline-flex items-center gap-2 text-sm text-accent hover:underline">
         <ArrowLeft aria-hidden className="h-4 w-4" /> İçerik stüdyosuna dön
       </Link>
@@ -112,6 +112,6 @@ export default async function Categories({
           </section>
         </div>
       )}
-    </main>
+    </div>
   );
 }

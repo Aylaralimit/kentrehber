@@ -1,0 +1,8 @@
+# Opt-in loopback ports for host-side development and integration tests.
+services:
+  postgres:
+    ports: ['127.0.0.1:5432:5432']
+  redis:
+    ports: ['127.0.0.1:6379:6379']
+  meilisearch:
+    ports: ['127.0.0.1:7700:7700']

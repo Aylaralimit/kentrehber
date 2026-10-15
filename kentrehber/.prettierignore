@@ -1,0 +1,7 @@
+.pnpm
+node_modules
+.next
+**/.next
+packages/db/generated
+pnpm-lock.yaml
+.env

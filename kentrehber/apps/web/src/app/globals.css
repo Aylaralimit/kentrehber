@@ -1,0 +1,84 @@
+@import 'tailwindcss';
+@source '../../../../packages/ui';
+
+@theme inline {
+  --color-background: var(--theme-bg);
+  --color-foreground: var(--theme-text);
+  --color-surface: var(--theme-surface);
+  --color-elevated: var(--theme-elevated);
+  --color-border: var(--theme-border);
+  --color-input: var(--theme-border);
+  --color-muted-foreground: var(--theme-muted);
+  --color-accent: var(--theme-accent);
+  --color-accent-alt: var(--theme-accent-alt);
+  --color-primary: var(--theme-accent);
+  --color-primary-foreground: var(--theme-bg);
+  --color-secondary: var(--theme-elevated);
+  --color-destructive: var(--theme-accent-alt);
+  --color-ring: var(--theme-accent);
+  --font-display: var(--theme-font-display);
+  --font-sans: var(--theme-font-body);
+  --radius-lg: var(--theme-radius);
+  --radius-md: calc(var(--theme-radius) * 0.7);
+  --radius-sm: calc(var(--theme-radius) * 0.4);
+}
+@layer base {
+  :root {
+    color-scheme: dark;
+    --theme-default-bg: #191917;
+    --theme-default-surface: #22221f;
+    --theme-default-elevated: #2d2d28;
+    --theme-default-border: #414139;
+    --theme-default-text: #f2f0e6;
+    --theme-default-muted: #b5b5a5;
+    --theme-default-accent: #d6dd9c;
+    --theme-default-accent-alt: #dab69c;
+    --theme-shadow: color-mix(in srgb, var(--theme-bg) 70%, transparent);
+  }
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+  }
+  ::selection {
+    background: var(--theme-accent);
+    color: var(--theme-bg);
+  }
+}
+.theme-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--theme-card-gap);
+}
+@media (min-width: 640px) {
+  .theme-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .theme-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  [data-density='tight'] .theme-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  [data-density='loose'] .theme-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.theme-hero {
+  background: var(--theme-surface);
+}
+[data-hero='gradient'] .theme-hero {
+  background: radial-gradient(
+    ellipse at top right,
+    color-mix(in srgb, var(--theme-accent) 18%, var(--theme-surface)),
+    var(--theme-bg) 80%
+  );
+}
+[data-hero='overlay'] .theme-hero {
+  background:
+    linear-gradient(120deg, var(--theme-bg), color-mix(in srgb, var(--theme-bg) 75%, transparent)),
+    repeating-linear-gradient(45deg, var(--theme-elevated) 0 2px, var(--theme-surface) 2px 36px);
+}

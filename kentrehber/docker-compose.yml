@@ -1,0 +1,115 @@
+name: kentrehber
+x-app: &app
+  image: kentrehber:phase0
+  build: .
+  init: true
+  env_file: .env
+  environment: &runtime
+    NODE_ENV: production
+    TRUST_PROXY: 'true'
+    APP_URL: ${DOCKER_APP_URL:-https://localhost}
+    DATABASE_URL: postgresql://${POSTGRES_USER:-kentrehber}:${POSTGRES_PASSWORD:?Run pnpm env:init}@postgres:5432/${POSTGRES_DB:-kentrehber}?schema=public&connection_limit=5&connect_timeout=3&pool_timeout=3
+    REDIS_URL: redis://:${REDIS_PASSWORD:?Run pnpm env:init}@redis:6379
+    MEILI_URL: http://meilisearch:7700
+  security_opt: ['no-new-privileges:true']
+  cap_drop: [ALL]
+  restart: unless-stopped
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-kentrehber}
+      POSTGRES_USER: ${POSTGRES_USER:-kentrehber}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run pnpm env:init}
+    volumes: ['postgres_data:/var/lib/postgresql/data']
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+    security_opt: ['no-new-privileges:true']
+  redis:
+    image: redis:7-alpine
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?Run pnpm env:init}
+    command:
+      [
+        sh,
+        -c,
+        'exec redis-server --appendonly yes --maxmemory-policy noeviction --requirepass "$$REDIS_PASSWORD"',
+      ]
+    volumes: ['redis_data:/data']
+    healthcheck:
+      test: [CMD-SHELL, 'REDISCLI_AUTH="$$REDIS_PASSWORD" redis-cli ping | grep -q PONG']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+    security_opt: ['no-new-privileges:true']
+  meilisearch:
+    image: getmeili/meilisearch:v1.10
+    environment:
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:?Run pnpm env:init}
+      MEILI_ENV: production
+      MEILI_NO_ANALYTICS: 'true'
+    volumes: ['meili_data:/meili_data']
+    restart: unless-stopped
+    security_opt: ['no-new-privileges:true']
+  migrate:
+    <<: *app
+    command: [pnpm, db:migrate]
+    restart: 'no'
+    depends_on:
+      postgres: { condition: service_healthy }
+  worker:
+    <<: *app
+    command: [pnpm, worker]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+    healthcheck:
+      test: [CMD, pnpm, exec, tsx, scripts/worker-health.ts]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+  web:
+    <<: *app
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+      meilisearch: { condition: service_started }
+    healthcheck:
+      test:
+        [
+          CMD,
+          node,
+          -e,
+          "fetch('http://127.0.0.1:3000/api/health/live').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 20s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+  caddy:
+    image: caddy:2.10-alpine
+    environment:
+      CADDY_ADDRESS: ${CADDY_ADDRESS:-localhost}
+    ports:
+      - '${BIND_IP:-127.0.0.1}:${HTTP_PORT:-80}:80'
+      - '${BIND_IP:-127.0.0.1}:${HTTPS_PORT:-443}:443'
+    volumes:
+      - ./infra/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      web: { condition: service_healthy }
+    restart: unless-stopped
+    security_opt: ['no-new-privileges:true']
+volumes:
+  postgres_data:
+  redis_data:
+  meili_data:
+  caddy_data:
+  caddy_config:

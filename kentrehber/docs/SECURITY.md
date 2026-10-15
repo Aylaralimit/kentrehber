@@ -1,0 +1,14 @@
+# Security defaults
+
+- Better Auth uses its official Prisma and Redis packages. Password hashing comes from Better Auth. No default passwords, public registration, reset endpoint or custom session adapter is included.
+- Admin pages validate sessions server-side and check the current disabled flag from PostgreSQL. Signing out invalidates the session and passes Better Auth's cookie clearing headers through to the browser.
+- Cookies are HttpOnly/SameSite=Lax and Secure in production. The configured `APP_URL` is the trusted origin; production requires HTTPS. The application never derives redirect destinations from forwarded Host headers.
+- Native sign-in is limited to five attempts per 15 minutes per IP by Better Auth's Redis secondary storage. `TRUST_PROXY=false` uses a fixed loopback IP in host development. In Compose, `TRUST_PROXY=true` accepts only the single IP header that private Caddy overwrites. Do not expose port 3000 outside the private network. IPv6 normalization/subnet handling is provided by Better Auth.
+- Auth requires an available Redis connection; failed dependencies deny access. Caddy caps request bodies at 1 MB. Better Auth's native handler owns password processing, input validation and session cookies.
+- CSP uses a fresh script nonce for each dynamic page. Production does not permit unsafe-eval. HTML is private/no-store to avoid nonce reuse from shared caches; inline styles remain allowed for framework compatibility. Headers deny framing and MIME sniffing and restrict browser permissions.
+- Readiness requires a timing-safe bearer token and returns status booleans, never secrets. Liveness alone does not certify service availability. Cloud probes are real requests; disabled cloud configuration is reported explicitly.
+- Verticals have no category-specific restrictions. Structural JSON validation, scoped category foreign keys, unique keys and a generic configuration review lifecycle preserve data integrity. Database administrators are trusted; application credentials must never be distributed to business users.
+- Base Compose publishes only Caddy. Redis uses authentication and noeviction. Application containers run as non-root with dropped capabilities and no-new-privileges. Keep environment files private and back up PostgreSQL to encrypted off-host storage.
+- R2/Images credentials remain server-side, scoped to the intended bucket/account. No upload or public media endpoint is included in this phase.
+- Run dependency and image scans before release. A build result does not certify the target architecture, Cloudflare settings or production readiness.
+- pnpm pins PostCSS 8.5.30 and deepmerge-ts 8.0.2 across the dependency graph to address reported advisories in Next/Prisma tooling. Prisma remains version 6; there is no authentication adapter shim. Regenerate the client and rerun type/build checks after changing these overrides.

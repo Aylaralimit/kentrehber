@@ -1,0 +1,12 @@
+{
+  "name": "@kentrehber/worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@kentrehber/config": "workspace:*",
+    "@kentrehber/db": "workspace:*",
+    "@kentrehber/services": "workspace:*",
+    "bullmq": "^5.70.0"
+  }
+}

@@ -1,0 +1,30 @@
+name: Phase 0 checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm env:init
+      - run: pnpm check:env && pnpm typecheck && pnpm lint && pnpm test && pnpm build
+      - run: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --wait postgres redis meilisearch
+      - run: pnpm db:migrate
+      - run: |
+          pnpm worker > worker.log 2>&1 &
+          NODE_ENV=production APP_URL=https://localhost pnpm start > web.log 2>&1 &
+          for i in $(seq 1 60); do curl -fsS http://localhost:3000/api/health/live && break; sleep 2; done
+          APP_URL=https://localhost pnpm test:integration
+          pnpm test:http
+      - run: docker compose build
+      - if: always()
+        run: docker compose -f docker-compose.yml -f docker-compose.dev.yml down -v

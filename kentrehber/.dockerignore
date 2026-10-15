@@ -1,0 +1,11 @@
+**/node_modules
+.pnpm
+packages/db/generated
+**/.next
+.git
+.env
+.env.*
+!.env.example
+**/*.log
+**/*.tsbuildinfo
+coverage

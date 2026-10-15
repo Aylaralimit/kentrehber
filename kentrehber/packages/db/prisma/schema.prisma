@@ -1,0 +1,121 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/client"
+}
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+enum Tier {
+  free
+  basic
+  pro
+  elite
+}
+enum ModerationLevel {
+  standard
+  strict
+  paranoid
+}
+model Vertical {
+  id                String          @id @default(cuid())
+  slug              String          @unique
+  name              String
+  theme             Json            @default("{}") @db.JsonB
+  isAdult           Boolean         @default(false) @map("is_adult")
+  allowedCategories Json            @map("allowed_categories") @db.JsonB
+  requiredFields    Json            @map("required_fields") @db.JsonB
+  moderationLevel   ModerationLevel @default(strict) @map("moderation_level")
+  paymentRequired   Boolean         @default(false) @map("payment_required")
+  defaultTier       Tier            @default(free) @map("default_tier")
+  enabled           Boolean         @default(false)
+  policyReviewedAt  DateTime?        @map("policy_reviewed_at") @db.Timestamptz(3)
+  policyReviewedBy  String?          @map("policy_reviewed_by")
+  createdAt         DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
+  categories        Category[]
+  @@map("verticals")
+}
+model Category {
+  id         String   @id @default(cuid())
+  verticalId String   @map("vertical_id")
+  slug       String
+  name       String
+  vertical   Vertical @relation(fields: [verticalId], references: [id], onDelete: Restrict)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  @@unique([verticalId, slug])
+  @@map("categories")
+}
+model City {
+  id        Int        @id
+  slug      String     @unique
+  name      String
+  districts District[]
+  @@map("cities")
+}
+model District {
+  id     String @id @default(cuid())
+  cityId Int    @map("city_id")
+  slug   String
+  name   String
+  city   City   @relation(fields: [cityId], references: [id], onDelete: Restrict)
+  @@unique([cityId, slug])
+  @@map("districts")
+}
+model User {
+  id            String    @id
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  disabled      Boolean   @default(false)
+  createdAt     DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime  @updatedAt @db.Timestamptz(3)
+  sessions      Session[]
+  accounts      Account[]
+  @@map("user")
+}
+model Session {
+  id        String   @id
+  token     String   @unique
+  userId    String
+  expiresAt DateTime @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  ipAddress String?
+  userAgent String?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("session")
+}
+model Account {
+  id                    String   @id
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime? @db.Timestamptz(3)
+  refreshTokenExpiresAt DateTime? @db.Timestamptz(3)
+  scope                 String?
+  password              String?
+  createdAt             DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt             DateTime @updatedAt @db.Timestamptz(3)
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+  @@unique([providerId, accountId])
+  @@map("account")
+}
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime @db.Timestamptz(3)
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime @updatedAt @db.Timestamptz(3)
+  @@index([identifier])
+  @@index([expiresAt])
+  @@map("verification")
+}

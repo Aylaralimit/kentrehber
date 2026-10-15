@@ -1,0 +1,50 @@
+{
+  "name": "kentrehber",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@10.28.2",
+  "engines": {
+    "node": ">=22.14 <25",
+    "pnpm": ">=10 <11"
+  },
+  "scripts": {
+    "dev": "dotenv -e .env -- pnpm --filter @kentrehber/web dev",
+    "build": "pnpm db:generate && pnpm --filter @kentrehber/web build",
+    "start": "dotenv -e .env -- pnpm --filter @kentrehber/web start",
+    "worker": "dotenv -e .env -- tsx apps/worker/src/index.ts",
+    "typecheck": "pnpm db:generate && tsc --noEmit && pnpm --filter @kentrehber/web typecheck",
+    "lint": "eslint . --max-warnings 0",
+    "test": "vitest run",
+    "test:integration": "dotenv -e .env -- tsx scripts/integration.ts",
+    "test:http": "dotenv -e .env -- tsx scripts/http-smoke.ts",
+    "db:generate": "prisma generate --schema packages/db/prisma/schema.prisma",
+    "db:migrate": "dotenv -e .env -- prisma migrate deploy --schema packages/db/prisma/schema.prisma",
+    "db:dev": "dotenv -e .env -- prisma migrate dev --schema packages/db/prisma/schema.prisma",
+    "operator:create": "dotenv -e .env -- tsx scripts/create-operator.ts",
+    "check:env": "dotenv -e .env -- tsx scripts/check-env.ts",
+    "env:init": "node scripts/init-env.mjs"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.39.0",
+    "@prisma/client": "6.19.3",
+    "@types/node": "^22.19.0",
+    "dotenv-cli": "^8.0.0",
+    "eslint": "^9.39.0",
+    "eslint-config-next": "15.5.28",
+    "prisma": "6.19.3",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.0",
+    "vitest": "^4.1.11"
+  },
+  "dependencies": {
+    "@kentrehber/auth": "workspace:*",
+    "@kentrehber/config": "workspace:*",
+    "@kentrehber/db": "workspace:*",
+    "@kentrehber/services": "workspace:*",
+    "better-auth": "1.7.9",
+    "bullmq": "^5.70.0"
+  },
+  "type": "module"
+}

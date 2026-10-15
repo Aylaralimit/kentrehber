@@ -1,0 +1,12 @@
+packages:
+  - apps/*
+  - packages/*
+overrides:
+  postcss: 8.5.30
+  deepmerge-ts: 8.0.2
+onlyBuiltDependencies:
+  - '@prisma/client'
+  - '@prisma/engines'
+  - prisma
+  - esbuild
+  - sharp

@@ -2,9 +2,10 @@ import Link from 'next/link';
 import { ArrowDown, ArrowRight, ArrowUpRight, LayoutGrid, Search, Sparkles } from 'lucide-react';
 import { ImageFrame } from '@kentrehber/ui/ImageFrame';
 import { getPublicCatalog } from '@/lib/catalog';
+import { getPublicCategories } from '@/lib/public-categories';
 
 export default async function Home() {
-  const catalog = await getPublicCatalog();
+  const [catalog, categories] = await Promise.all([getPublicCatalog(), getPublicCategories()]);
 
   return (
     <div className="mx-auto max-w-7xl px-5 pb-20 sm:px-8">
@@ -65,6 +66,22 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      {categories.length ? (
+        <section aria-label="İşletme kategorileri" className="my-8 rounded-xl border border-border bg-surface px-6 py-7 sm:px-8">
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-base font-semibold tracking-tight">Kategoriler</h2>
+            <span className="text-xs text-muted-foreground">{categories.length} kategori</span>
+          </div>
+          <ul className="flex flex-wrap gap-2">
+            {categories.map((category) => (
+              <li key={category.slug} className="rounded-full border border-border bg-elevated px-4 py-2 text-xs font-semibold text-foreground">
+                {category.name}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <section id="katalog" className="scroll-mt-28 pt-10 sm:pt-14" aria-labelledby="catalog-title">
         <div className="mb-9 flex flex-wrap items-end justify-between gap-6">

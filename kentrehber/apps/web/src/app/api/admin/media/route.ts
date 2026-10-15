@@ -6,7 +6,7 @@ import { currentSession } from '@/lib/session';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const MAX_BYTES = 9 * 1024 * 1024;
+const MAX_BYTES = 4 * 1024 * 1024;
 const allowedTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
 function matchesImageSignature(type: string, bytes: Uint8Array): boolean {
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
 
   const declaredSize = Number(request.headers.get('content-length') ?? 0);
   if (declaredSize > MAX_BYTES + 64_000)
-    return NextResponse.json({ error: 'Dosya boyutu 9 MB sınırını aşıyor' }, { status: 413 });
+    return NextResponse.json({ error: 'Dosya boyutu 4 MB sınırını aşıyor' }, { status: 413 });
 
   let form: FormData;
   try {
@@ -56,7 +56,7 @@ export async function POST(request: Request) {
   }
   const file = form.get('file');
   if (!(file instanceof File) || !allowedTypes.has(file.type) || file.size < 1 || file.size > MAX_BYTES)
-    return NextResponse.json({ error: 'JPG, PNG veya WebP görsel (en fazla 9 MB) gerekli' }, { status: 400 });
+    return NextResponse.json({ error: 'JPG, PNG veya WebP görsel (en fazla 4 MB) gerekli' }, { status: 400 });
 
   const signature = new Uint8Array(await file.slice(0, 12).arrayBuffer());
   if (!matchesImageSignature(file.type, signature))
